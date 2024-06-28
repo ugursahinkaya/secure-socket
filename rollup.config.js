@@ -75,7 +75,7 @@ export default [
       typescript({
         tsconfig: "./tsconfig.json",
       }),
-      //terser(),
+      terser(),
     ],
   },
   {
