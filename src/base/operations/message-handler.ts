@@ -43,8 +43,6 @@ export async function messageHandler(
     event: { data: string | Buffer | ArrayBuffer | Buffer[] | Blob };
   }
 ) {
-  console.log("messageHandler", args);
-  console.log(base.crypto.keyMap);
   const { isFirstMessage, event } = args;
   let payloadBuffer = event.data;
   base.logger.log(

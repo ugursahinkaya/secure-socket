@@ -61,11 +61,9 @@ export class SecureSocket<
     const authApiOperations = {
       ...operations,
       loggedOut: () => {
-        console.log("loggedOut");
         this.socket?.close(1000);
       },
       loggedIn: (queryToken: string) => {
-        console.log("loggedIn", queryToken);
         this.socketInit(queryToken);
       },
     };
@@ -86,7 +84,6 @@ export class SecureSocket<
   }
 
   async ping() {
-    console.log("ping");
     if (new Date().getTime() - this.lastSeen.getTime() < 5 * 1000) {
       return;
     }
@@ -127,8 +124,7 @@ export class SecureSocket<
     return res;
   }
 
-  init = (token?: string) => {
-    console.log("init");
+  protected init = (token?: string) => {
     this.socket?.close(1000);
     if (!token) {
       token = this.queryTokenValue();
@@ -139,7 +135,6 @@ export class SecureSocket<
     if (!this.socketUrl) {
       return;
     }
-    console.log(this.socketUrl + token);
     this.logger.log("Socket init", this.socketUrl + token);
     if (!this.socket) {
       this.socket = new WebSocket(this.socketUrl + token);
@@ -173,7 +168,6 @@ export class SecureSocket<
     });
 
     this.socket.addEventListener("error", (event: any) => {
-      console.log("socket error", event);
       this.logger.error("Error", event);
       void this.call(
         "socketError",
