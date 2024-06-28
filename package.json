@@ -1,0 +1,71 @@
+{
+  "name": "@ugursahinkaya/secure-socket",
+  "type": "module",
+  "version": "0.1.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "MIT",
+  "description": "",
+  "author": "Uğur Şahinkaya <ugur@sahinkaya.xyz>",
+  "contributors": [
+    "Uğur Şahinkaya <ugur@sahinkaya.xyz>",
+    "Yusuf Kandemir <yusuf.kandemir@outlook.com.tr>"
+  ],
+  "homepage": "https://github.com/ugursahinkaya/secure-socket#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ugursahinkaya/secure-socket.git"
+  },
+  "bugs": "https://github.com/ugursahinkaya/secure-socket/issues",
+  "keywords": [],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "node": "./dist/index.cjs",
+      "default": "./dist/index.js",
+      "umd": "./dist/index.umd.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "packageManager": "pnpm@9.3.0+sha512.ee7b93e0c2bd11409c6424f92b866f31d3ea1bef5fbe47d3c7500cdc3c9668833d2e55681ad66df5b640c61fa9dc25d546efa54d76d7f8bf54b13614ac293631",
+  "scripts": {
+    "format": "prettier --write .",
+    "dev": "tsx watch -r dotenv-expand/config src/",
+    "lint": "eslint  --fix",
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/lodash": "^4.17.6",
+    "@types/ws": "^8.5.10",
+    "rollup": "^4.18.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typescript": "5.5.2",
+    "ws": "^8.17.1"
+  },
+  "dependencies": {
+    "@ugursahinkaya/crypto-lib": "0.1.0",
+    "@ugursahinkaya/event-manager": "0.1.0",
+    "@ugursahinkaya/generic-router": "0.1.0",
+    "@ugursahinkaya/secure-auth": "0.1.0",
+    "@ugursahinkaya/shared-types": "0.1.0",
+    "@ugursahinkaya/utils": "0.1.0",
+    "lodash": "^4.17.21"
+  }
+}
