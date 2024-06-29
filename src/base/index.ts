@@ -65,6 +65,7 @@ export class SecureSocket<
       },
       loggedIn: (queryToken: string) => {
         this.socketInit(queryToken);
+        this.call("userLoggedIn");
       },
     };
     super(authUrl, authApiOperations);
