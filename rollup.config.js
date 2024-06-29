@@ -52,7 +52,6 @@ export default [
       globals: {
         "@ugursahinkaya/event-manager": "YUM",
         "@ugursahinkaya/crypto-lib": "YUM",
-        "@ugursahinkaya/generic-router": "YUM",
         "@ugursahinkaya/secure-auth": "YUM",
         "@ugursahinkaya/utils": "YUM",
       },
@@ -60,7 +59,6 @@ export default [
     external: [
       "@ugursahinkaya/crypto-lib",
       "@ugursahinkaya/event-manager",
-      "@ugursahinkaya/generic-router",
       "@ugursahinkaya/secure-auth",
       "@ugursahinkaya/utils",
     ],
