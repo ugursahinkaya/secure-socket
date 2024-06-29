@@ -63,6 +63,6 @@
     "@ugursahinkaya/event-manager": "0.1.0",
     "@ugursahinkaya/secure-auth": "0.1.0",
     "@ugursahinkaya/shared-types": "0.1.0",
-    "@ugursahinkaya/utils": "0.1.0",
+    "@ugursahinkaya/utils": "0.1.0"
   }
 }
