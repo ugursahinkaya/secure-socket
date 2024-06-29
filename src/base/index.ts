@@ -99,7 +99,7 @@ export class SecureSocket<
     this.pingTimeout = setTimeout(async () => {
       clearTimeout(this.pingTimeout);
       void this.socketInit();
-    }, 2000);
+    }, 10000);
   }
 
   async sendMessage(

@@ -86,7 +86,12 @@ export async function sendMessage(
     }
 
     base.activeQueries[payload.queryId] = { payload, resolve, reject };
-    if (encrypt && payload.receiver) {
+    if (
+      encrypt &&
+      payload.receiver &&
+      !payload.workerProcess?.newKey &&
+      !payload.workerProcess?.importKey
+    ) {
       if (payload.receiver !== "server") {
         payload.body = await base.crypto.encrypt(
           JSON.stringify(payload.body),
