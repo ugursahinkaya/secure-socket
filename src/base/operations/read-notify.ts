@@ -10,8 +10,9 @@ export function readNotify(
   if (!receivedPayload.sender) {
     return;
   }
-  base.logger.debug(
-    `messageReceived > sending blank message for read notification to ${receivedPayload.sender}`
+  base.socketLogger.debug(
+    `messageReceived > sending blank message for read notification to ${receivedPayload.sender}`,
+    "readNotify"
   );
   const { sender, queryId } = receivedPayload;
   const payload: SocketPayload = {

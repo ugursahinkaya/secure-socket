@@ -27,9 +27,7 @@ export async function generateAndSendKey(
   };
 
   const originalQuery = base.activeQueries[queryId];
-  base.logger.log(
-    `generateAndSendKey > sending key to ${receivedPayload.sender}`
-  );
+  base.socketLogger.debug(receivedPayload.sender, ["generateAndSendKey"]);
   await sendMessage(base, {
     payload,
     encrypt: false,

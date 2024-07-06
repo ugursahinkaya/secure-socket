@@ -11,11 +11,7 @@ export async function importKey(
   }
   const { sender, body } = receivedPayload;
   const senderPublicKey = base.crypto.base64ToArrayBuffer(body);
-  base.logger.log(
-    `importKey > importing key from ${receivedPayload.sender}`,
-    body,
-    senderPublicKey
-  );
+  base.socketLogger.debug(receivedPayload.sender, "importKey");
 
   await base.crypto.importPublicKey(senderPublicKey, sender);
 

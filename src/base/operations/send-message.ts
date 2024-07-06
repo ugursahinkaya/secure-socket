@@ -26,14 +26,17 @@ export async function sendMessage(
     }
 
     if (base.socket?.readyState !== 1) {
-      base.logger.error("Socket is not open trying to reconnect");
+      base.socketLogger.error(
+        "Socket is not open trying to reconnect",
+        "sendMessage"
+      );
       await base.socketInit();
     }
 
     if (!payload.queryId || payload.queryId === "") {
       payload.queryId = randomString();
     }
-    base.logger.log("sendMessage", encrypt, payload);
+    base.socketLogger.debug(payload, ["sendMessage", `encrypt:${encrypt}`]);
     const originalPayload = { ...payload };
     let e2e = true;
     if (
@@ -43,8 +46,9 @@ export async function sendMessage(
       !payload.workerProcess?.importKey
     ) {
       e2e = false;
-      base.logger.error(
-        `sendMessage > No secret key found for ${payload.receiver}, trying to establish secure connection`
+      base.socketLogger.error(
+        `sendMessage > No secret key found for ${payload.receiver}, trying to establish secure connection`,
+        "sendMessage"
       );
 
       try {
@@ -57,7 +61,7 @@ export async function sendMessage(
       } catch (error) {
         const err = `sendMessage > Error while establishing secure connection with ${payload.receiver}`;
         reject(err);
-        throw base.logger.error(err, error);
+        throw base.socketLogger.error(err, "sendMessage");
       }
     }
     if (!e2e) {
@@ -70,7 +74,7 @@ export async function sendMessage(
       !payload.workerProcess?.importKey
     ) {
       payload.callback = async (result: SocketPayload) => {
-        base.logger.log("sendMessage > oldQuery callback", result);
+        base.socketLogger.debug(result, ["sendMessage", "oldQuery callback"]);
         if (result.workerProcess?.importKey && payload.queryId) {
           const oldQuery = base.activeQueries[payload.queryId];
           if (oldQuery) {

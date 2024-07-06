@@ -45,14 +45,13 @@ export async function messageHandler(
 ) {
   const { isFirstMessage, event } = args;
   let payloadBuffer = event.data;
-  base.logger.log(
-    "onMessage event triggered",
-    "isFirstMessage",
-    isFirstMessage
-  );
+  base.socketLogger.debug(isFirstMessage, ["messageHandler", "isFirstMessage"]);
 
   if (typeof payloadBuffer === "string") {
-    base.logger.error("String messages are not supported");
+    base.socketLogger.error(
+      "String messages are not supported",
+      "messageHandler"
+    );
     return;
   }
   if (Array.isArray(payloadBuffer)) {
@@ -64,28 +63,44 @@ export async function messageHandler(
   // When we connect to the server, the first message will be the public key of the server
   // We need to store this key and send our own public key back to the server to complete the handshake
   if (isFirstMessage || !base.crypto.keyMap.get("serverPBL")) {
-    base.logger.debug(
-      "Server public key not found, handshaking with the server"
+    base.socketLogger.error(
+      "Server public key not found, handshaking with the server",
+      "messageHandler"
     );
     try {
-      base.logger.debug("Generating a new key pair for the server");
+      base.socketLogger.debug(
+        "Generating a new key pair for the server",
+        "messageHandler"
+      );
       await base.crypto.generateKey("server");
       const serverPublicKey = payloadBuffer;
-      base.logger.debug("importing incoming server public key");
+      base.socketLogger.debug(
+        "importing incoming server public key",
+        "messageHandler"
+      );
       await base.crypto.importPublicKey(serverPublicKey, "server");
-      base.logger.debug("exporting our public key to send to the server");
+      base.socketLogger.debug(
+        "exporting our public key to send to the server",
+        "messageHandler"
+      );
       const selfPublicKey = await base.crypto.exportKey("server");
       const selfPublicKeyBlob = new Blob([selfPublicKey], {
         type: "text/plain",
       });
-      base.logger.debug("sending our public key to the server");
+      base.socketLogger.debug(
+        "sending our public key to the server",
+        "messageHandler"
+      );
       await base.socket?.send(await selfPublicKeyBlob.arrayBuffer());
-      base.logger.log("Handshake with the server completed");
+      base.socketLogger.info(
+        "Handshake with the server completed",
+        "messageHandler"
+      );
       void base.call("socketReady");
     } catch (error) {
-      base.logger.error(
+      base.socketLogger.error(
         "Could not handshake with the server, closing the socket",
-        error
+        "messageHandler"
       );
       base.socket?.close(1000);
     }
@@ -99,16 +114,19 @@ export async function messageHandler(
       "server"
     )) as unknown as SocketPayload<string>;
   } catch (error) {
-    base.logger.log("error", error);
+    base.socketLogger.error(error as string, ["messageHandler"]);
     payload = {
       error: "Could not decrypt the message",
       body: "",
       queryId: "",
     };
   }
-  base.logger.log("received", payload.queryId, payload);
+  base.socketLogger.info(payload.queryId as string, [
+    "messageHandler",
+    "queryId",
+  ]);
   if (payload.error) {
-    base.logger.error("Error in message", payload);
+    base.socketLogger.error("Error in message", "messageHandler");
     void returnError(base, payload);
     return;
   }
@@ -138,8 +156,9 @@ export async function messageHandler(
     payload.sender &&
     !base.crypto.hasSecret(payload.sender)
   ) {
-    base.logger.warn(
-      `No key for ${payload.sender}, needs handshake, trying to force exchange key`
+    base.socketLogger.warn(
+      `No key for ${payload.sender}, needs handshake, trying to force exchange key`,
+      "messageHandler"
     );
     try {
       await exchangeKey(base, {
@@ -147,7 +166,7 @@ export async function messageHandler(
         queryId: payload.queryId,
       });
     } catch (error) {
-      base.logger.error("Could not exchange key", error);
+      base.socketLogger.error("Could not exchange key", "messageHandler");
     }
 
     return;
@@ -159,7 +178,10 @@ export async function messageHandler(
   }
   try {
     const messageBuffer = base.crypto.base64ToArrayBuffer(payload.body);
-    base.logger.debug(`Attempting to decrypt the message ${payload.sender}`);
+    base.socketLogger.debug(
+      `Attempting to decrypt the message ${payload.sender}`,
+      "messageHandler"
+    );
     decryptedMessage = await base.crypto.decryptBuffer(
       messageBuffer,
       true,
@@ -174,14 +196,18 @@ export async function messageHandler(
     receiver: payload.receiver as string,
   };
 
-  base.logger.debug(`${payload.sender} says `, finalPayload);
+  base.socketLogger.trace(finalPayload, [
+    "messageHandler",
+    `${payload.sender} says `,
+  ]);
   // readNotify(base, payload);
   if (finalPayload && finalPayload.process) {
     await base.eventRouter
       .runMiddlewares(finalPayload.process, finalPayload, "result")
       .catch((errorIndex) => {
-        base.logger.error(
-          `${errorIndex}. postEvents returned false for ${finalPayload.process}. This not blocks sending result for requester. Anyway check everything is ok.`
+        base.socketLogger.error(
+          `${errorIndex}. postEvents returned false for ${finalPayload.process}. This not blocks sending result for requester. Anyway check everything is ok.`,
+          "messageHandler"
         );
         return;
       });
@@ -191,7 +217,10 @@ export async function messageHandler(
     finalPayload.process !== "subscribe" &&
     !base.isOperationExists(finalPayload.process)
   ) {
-    base.logger.debug(`Operation ${finalPayload.process} not found`);
+    base.socketLogger.debug(
+      `Operation ${finalPayload.process} not found`,
+      "messageHandler"
+    );
     void returnError(base, {
       ...payload,
       error: `Operation ${finalPayload.process} not found`,
@@ -228,7 +257,7 @@ export async function messageHandler(
         },
         finalPayload.sender
       );
-      base.logger.debug(`subscribe ${call} completed`);
+      base.socketLogger.debug(`subscribe ${call} completed`, "messageHandler");
       void sendMessage(base, {
         payload: {
           body: { process: `subscribe ${call}`, status: true },
@@ -239,7 +268,10 @@ export async function messageHandler(
     }
 
     try {
-      base.logger.debug("Calling", finalPayload.process);
+      base.socketLogger.debug(finalPayload.process, [
+        "messageHandler",
+        "Calling",
+      ]);
       const output = await base.call(
         finalPayload.process,
         {
@@ -249,30 +281,35 @@ export async function messageHandler(
         },
         finalPayload.body
       );
-      base.logger.debug("Call output:", output);
+      base.socketLogger.debug(output, ["messageHandler", "Call output"]);
       void base.eventRouter
         .checkPostEvents(finalPayload.process, output)
         .catch((errorIndex) => {
-          base.logger.error(
-            `${errorIndex}. postEvents returned false for ${finalPayload.process}. This not blocks sending result for requester. Anyway check everything is ok.`
+          base.socketLogger.error(
+            `${errorIndex}. postEvents returned false for ${finalPayload.process}. This not blocks sending result for requester. Anyway check everything is ok.`,
+            "messageHandler"
           );
         });
       void base.eventRouter
         .checkPostEvents(finalPayload.process, output, finalPayload.sender)
         .catch((errorIndex) => {
-          base.logger.error(
-            `${errorIndex}. postEvents returned false for ${finalPayload.process} (defined with ${finalPayload.sender}). This not blocks sending result for requester. Anyway check everything is ok.`
+          base.socketLogger.error(
+            `${errorIndex}. postEvents returned false for ${finalPayload.process} (defined with ${finalPayload.sender}). This not blocks sending result for requester. Anyway check everything is ok.`,
+            "messageHandler"
           );
         });
 
       if (output !== undefined) {
-        base.logger.debug("Respnse sending");
+        base.socketLogger.debug("Respnse sending", "messageHandler");
         void sendMessage(base, {
           payload: { body: output, receiver: finalPayload.sender },
         });
       }
     } catch (error) {
-      base.logger.error("callOperation error:", error);
+      base.socketLogger.error(error as string, [
+        "messageHandler",
+        "callOperation error",
+      ]);
       void sendMessage(base, {
         payload: {
           body: { error: "callOperation error" },

@@ -11,9 +11,9 @@ export async function exchangeKey(
   const { receiver } = args;
   let { queryId } = args;
   if (queryId) {
-    base.logger.log(`exchangeKey > for ${receiver} ${queryId}`);
+    base.socketLogger.debug(receiver, ["exchangeKey", "receiver", queryId]);
   } else {
-    base.logger.log(`exchangeKey > for ${receiver}`);
+    base.socketLogger.debug(receiver, ["exchangeKey", "receiver"]);
   }
   if (!queryId) {
     queryId = randomString();
@@ -28,7 +28,7 @@ export async function exchangeKey(
     body: base.crypto.arrayBufferToBase64(selfPublicKey),
   };
 
-  base.logger.log("payload", payload);
+  base.socketLogger.debug(payload, ["exchangeKey", "payload"]);
   return new Promise<true>((resolve, reject) => {
     void sendMessage(base, {
       payload,

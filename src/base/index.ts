@@ -1,6 +1,5 @@
 import {
   AnyRecord,
-  Logger,
   SecureSocketOperations,
   SecureSocketOptions,
   SocketPayload,
@@ -8,7 +7,7 @@ import {
 import { SecureAuth } from "@ugursahinkaya/secure-auth";
 import { useEventRouter } from "@ugursahinkaya/event-manager";
 import { CryptoLib } from "@ugursahinkaya/crypto-lib";
-import { createLogger } from "./logger.js";
+import { Logger } from "@ugursahinkaya/logger";
 import { sendMessage, messageHandler } from "./operations/index.js";
 import { sendPing } from "./operations/send-ping.js";
 import { WebSocket } from "ws";
@@ -16,8 +15,8 @@ export class SecureSocket<
   TOperations extends SecureSocketOperations,
 > extends SecureAuth<any> {
   protected isFirstMessage = true;
-  logger: Logger;
   crypto: CryptoLib;
+  socketLogger: Logger;
   socket?: WebSocket;
   socketUrl?: string;
   activeQueries: Record<
@@ -44,7 +43,7 @@ export class SecureSocket<
   pingInterval: any;
   lastSeen = new Date();
   constructor(args: SecureSocketOptions<TOperations>) {
-    let { operations, authUrl, socketUrl, logger } = args;
+    let { operations, authUrl, socketUrl, logLevel } = args;
     if (!authUrl) {
       throw new Error("authUrl must be provided");
     }
@@ -71,17 +70,7 @@ export class SecureSocket<
     super(authUrl, authApiOperations);
     this.crypto = new CryptoLib();
     this.socketUrl = socketUrl;
-    if (logger) {
-      const { name } = logger;
-      let { levels } = logger;
-
-      if (!levels) {
-        levels = ["error", "warn", "log"];
-      }
-      this.logger = createLogger(`${name} base`, levels);
-    } else {
-      this.logger = createLogger("SecureSocket", ["error", "warn", "log"]);
-    }
+    this.socketLogger = new Logger("SecureSocket", "#33FF99", logLevel);
   }
 
   async ping() {

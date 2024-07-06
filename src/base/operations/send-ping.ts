@@ -1,6 +1,6 @@
-import { arrayBufferToBase64 } from '@ugursahinkaya/utils';
-import { SecureSocket } from '../index.js';
-import { sendMessage } from './send-message.js';
+import { arrayBufferToBase64 } from "@ugursahinkaya/utils";
+import { SecureSocket } from "../index.js";
+import { sendMessage } from "./send-message.js";
 
 export async function sendPing(base: SecureSocket<any>, receiver: string) {
   return new Promise<void>((resolve, reject) => {
@@ -9,7 +9,7 @@ export async function sendPing(base: SecureSocket<any>, receiver: string) {
       payload: {
         receiver,
         body: arrayBufferToBase64(salt),
-        process: 'ping',
+        process: "ping",
         callback: () => {
           base.crypto
             .setSecretSalt(receiver, salt)
@@ -17,8 +17,8 @@ export async function sendPing(base: SecureSocket<any>, receiver: string) {
               resolve();
             })
             .catch(reject);
-        }
-      }
+        },
+      },
     });
   });
 }

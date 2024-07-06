@@ -11,7 +11,7 @@ export async function checkCallBack(
     const waitingMessage = base.activeQueries[payload.queryId];
     if (waitingMessage) {
       if (waitingMessage.payload.callback) {
-        base.logger.debug(
+        base.socketLogger.debug(
           "checkCallBack > calling callback",
           JSON.parse(JSON.stringify(payload))
         );
