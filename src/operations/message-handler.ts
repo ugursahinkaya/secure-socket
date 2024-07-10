@@ -1,12 +1,9 @@
 import { SocketPayload, AnyRecord } from "@ugursahinkaya/shared-types";
-import { SecureSocket } from "../index.js";
-import {
-  checkCallBack,
-  exchangeKey,
-  generateAndSendKey,
-  importKey,
-  sendMessage,
-} from "./index.js";
+import { SecureSocket, exchangeKey, sendMessage } from "../index.js";
+import { checkCallBack } from "./check-callback.js";
+import { generateAndSendKey } from "./generate-and-send-key.js";
+import { importKey } from "./import-key.js";
+
 async function returnError(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   base: SecureSocket<any>,
